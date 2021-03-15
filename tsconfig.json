@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"module": "CommonJS",
+		"moduleResolution": "node",
+		"newLine": "lf",
+		"pretty": true,
+		"skipLibCheck": true,
+		"target": "ES5"
+	},
+	"files": [
+		"boids.ts",
+	],
+}
