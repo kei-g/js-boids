@@ -1,7 +1,7 @@
+NPM      = npm
+NPMFLAGS = --silent
 RM       = rm -f
 TARGET   = boids.js
-TSC      = tsc
-TSCFLAGS = -P tsconfig.json
 
 all: $(TARGET)
 
@@ -11,4 +11,4 @@ clean:
 .PHONY: clean
 
 $(TARGET):
-	$(TSC) $(TSCFLAGS)
+	$(NPM) run build $(NPMFLAGS)

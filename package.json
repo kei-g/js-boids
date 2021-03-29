@@ -1,0 +1,29 @@
+{
+  "author": {
+    "email": "km.8k6ce+github@gmail.com",
+    "name": "kei-g"
+  },
+  "description": "Bird-oid model simulation",
+  "devDependencies": {
+    "@types/node": "^14.14.37",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.3"
+  },
+  "displayName": "js-boids",
+  "files": [
+    "boids.js"
+  ],
+  "homepage": "https://kei-g.github.io/js-boids/",
+  "license": " BSD-3-Clause License",
+  "name": "js-boids",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kei-g/js-boids.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "version": "1.0.0"
+}
