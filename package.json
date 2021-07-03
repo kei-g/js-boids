@@ -5,9 +5,9 @@
   },
   "description": "Bird-oid model simulation",
   "devDependencies": {
-    "@types/node": "^15.12.4",
+    "@types/node": "^15.14.1",
     "ts-node": "^10.0.0",
-    "typescript": "^4.3.4"
+    "typescript": "^4.3.5"
   },
   "displayName": "js-boids",
   "files": [
