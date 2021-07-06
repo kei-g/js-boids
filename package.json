@@ -19,7 +19,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kei-g/js-boids.git"
+    "url": "https://github.com/kei-g/js-boids.git"
   },
   "scripts": {
     "build": "tsc",
