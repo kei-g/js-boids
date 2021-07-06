@@ -14,7 +14,7 @@
     "boids.js"
   ],
   "homepage": "https://kei-g.github.io/js-boids/",
-  "license": " BSD-3-Clause License",
+  "license": " BSD-3-Clause",
   "name": "js-boids",
   "private": true,
   "repository": {
