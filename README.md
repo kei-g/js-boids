@@ -4,4 +4,5 @@ Bird-oid model simulation
 
 [Run the example](https://kei-g.github.io/js-boids/)
 
-[![Build Status](https://travis-ci.com/kei-g/js-boids.svg?branch=master)](https://travis-ci.com/github/kei-g/js-boids)
+![Travis (.com)](https://img.shields.io/travis/com/kei-g/js-boids?style=plastic)
+![GitHub](https://img.shields.io/github/license/kei-g/js-boids?style=plastic)
