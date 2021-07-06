@@ -1,11 +1,15 @@
 {
 	"compilerOptions": {
+    "lib": [ "DOM", "ESNext" ],
 		"module": "CommonJS",
 		"moduleResolution": "node",
 		"newLine": "lf",
 		"pretty": true,
+    "removeComments": true,
 		"skipLibCheck": true,
-		"target": "ES5"
+    "strict": true,
+    "strictNullChecks": false,
+		"target": "ES5",
 	},
 	"files": [
 		"boids.ts",

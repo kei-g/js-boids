@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -13,7 +14,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-var Vector2D = /** @class */ (function () {
+var Vector2D = (function () {
     function Vector2D(x, y) {
         var _a;
         if (typeof (x) === 'number') {
@@ -103,7 +104,7 @@ var Vector2D = /** @class */ (function () {
     };
     return Vector2D;
 }());
-var Acceleration = /** @class */ (function (_super) {
+var Acceleration = (function (_super) {
     __extends(Acceleration, _super);
     function Acceleration() {
         var _this = _super.call(this, 0, 0) || this;
@@ -120,7 +121,7 @@ var Acceleration = /** @class */ (function (_super) {
     };
     return Acceleration;
 }(Vector2D));
-var Deceleration = /** @class */ (function (_super) {
+var Deceleration = (function (_super) {
     __extends(Deceleration, _super);
     function Deceleration() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -131,7 +132,7 @@ var Deceleration = /** @class */ (function (_super) {
     };
     return Deceleration;
 }(Acceleration));
-var AvoidanceDeceleration = /** @class */ (function (_super) {
+var AvoidanceDeceleration = (function (_super) {
     __extends(AvoidanceDeceleration, _super);
     function AvoidanceDeceleration() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -144,7 +145,7 @@ var AvoidanceDeceleration = /** @class */ (function (_super) {
     };
     return AvoidanceDeceleration;
 }(Deceleration));
-var FarAcceleration = /** @class */ (function (_super) {
+var FarAcceleration = (function (_super) {
     __extends(FarAcceleration, _super);
     function FarAcceleration() {
         return _super !== null && _super.apply(this, arguments) || this;
@@ -159,7 +160,7 @@ var FarAcceleration = /** @class */ (function (_super) {
     };
     return FarAcceleration;
 }(Acceleration));
-var SpreadAcceleration = /** @class */ (function (_super) {
+var SpreadAcceleration = (function (_super) {
     __extends(SpreadAcceleration, _super);
     function SpreadAcceleration(spread) {
         var _this = _super.call(this) || this;
@@ -176,7 +177,7 @@ var SpreadAcceleration = /** @class */ (function (_super) {
     };
     return SpreadAcceleration;
 }(Acceleration));
-var Boid = /** @class */ (function () {
+var Boid = (function () {
     function Boid(all, canvas, circles, context, index) {
         this.all = all;
         this.canvas = canvas;
@@ -293,7 +294,7 @@ var Boid = /** @class */ (function () {
     };
     return Boid;
 }());
-var BoidRelationship = /** @class */ (function () {
+var BoidRelationship = (function () {
     function BoidRelationship(baseBoid, relationalBoid) {
         this.baseBoid = baseBoid;
         this.relationalBoid = relationalBoid;
@@ -305,7 +306,7 @@ var BoidRelationship = /** @class */ (function () {
 function within(lower, higher) {
     return function (value) { return lower <= value && value <= higher; };
 }
-var Circle = /** @class */ (function () {
+var Circle = (function () {
     function Circle(context, x, y, radius, color) {
         if (radius === void 0) { radius = 100; }
         if (color === void 0) { color = 'rgba(32, 32, 48, .5)'; }
@@ -351,7 +352,7 @@ var Circle = /** @class */ (function () {
     });
     return Circle;
 }());
-var IntersectingPoint = /** @class */ (function () {
+var IntersectingPoint = (function () {
     function IntersectingPoint(amplitude) {
         this.rotation = Math.PI - (amplitude * 2 <= Math.PI ? 2 : 1) * amplitude;
     }
