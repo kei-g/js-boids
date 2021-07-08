@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "downlevelIteration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "lib": [ "DOM", "ESNext" ],
     "module": "CommonJS",
     "moduleResolution": "node",
