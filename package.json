@@ -23,7 +23,7 @@
     "url": "https://github.com/kei-g/js-boids.git"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && uglifyjs dist/boids.js --compress --mangle > boids.js",
     "prepublishOnly": "npm run build"
   },
   "version": "1.0.0"
