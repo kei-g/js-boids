@@ -1,21 +1,22 @@
 {
   "compilerOptions": {
+    "alwaysStrict": true,
+    "charset": "utf8",
     "downlevelIteration": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "lib": [ "DOM", "ESNext" ],
+    "emitDecoratorMetadata": false,
+    "experimentalDecorators": false,
+    "lib": [
+      "DOM",
+      "ESNext",
+    ],
     "module": "CommonJS",
     "moduleResolution": "node",
     "newLine": "lf",
-    "outDir": "dist",
     "pretty": true,
     "removeComments": true,
     "skipLibCheck": true,
     "strict": true,
     "strictNullChecks": false,
-    "target": "ES5",
+    "target": "ES2015",
   },
-  "files": [
-    "boids.ts",
-  ],
 }
