@@ -14,10 +14,7 @@
   "license": " BSD-3-Clause",
   "name": "js-boids",
   "private": true,
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kei-g/js-boids.git"
-  },
+  "repository": "github:kei-g/js-boids",
   "scripts": {
     "build": "tsc && uglifyjs dist/boids.js --compress --mangle > boids.js",
     "clean": "rm -fr dist/"
