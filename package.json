@@ -10,10 +10,6 @@
     "typescript": "^4.3.5",
     "uglify-js": "^3.13.10"
   },
-  "displayName": "js-boids",
-  "files": [
-    "boids.js"
-  ],
   "homepage": "https://kei-g.github.io/js-boids/",
   "license": " BSD-3-Clause",
   "name": "js-boids",
