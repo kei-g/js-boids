@@ -97,10 +97,11 @@ type Vector2DLike = {
 }
 
 abstract class Acceleration extends Vector2D {
-  protected count: number = 0
+  protected count: number
 
   constructor() {
     super(0, 0)
+    this.count = 0
   }
 
   add(vector: Vector2DLike): void {
@@ -188,7 +189,7 @@ class Boid {
   }
 
   drawCanvas(): void {
-    this.context.fillStyle = "rgba(0, 0, 0, .1)"
+    this.context.fillStyle = 'rgba(0, 0, 0, .1)'
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
   }
 
@@ -344,10 +345,10 @@ function addOrRemoveCircle(circles: Circle[], context: CanvasRenderingContext2D,
 
 function updateBoids(boids: Boid[]): void {
   const boid = boids[0]
-  boid.globalCompositeOperation = "source-over"
+  boid.globalCompositeOperation = 'source-over'
   boid.drawCanvas()
   boid.drawCircles()
-  boid.globalCompositeOperation = "lighter"
+  boid.globalCompositeOperation = 'lighter'
   for (const boid of boids) {
     boid.draw()
     boid.update()
