@@ -331,8 +331,19 @@ class IntersectingPoint {
   }
 }
 
-function addOrRemoveCircle(circles: Circle[], context: CanvasRenderingContext2D, event: any): void {
-  const r = event.target.getBoundingClientRect()
+type Rectangle = {
+  bottom: number
+  left: number
+  right: number
+  top: number
+}
+
+type MouseEventTarget = {
+  getBoundingClientRect(): Rectangle
+}
+
+function addOrRemoveCircle(circles: Circle[], context: CanvasRenderingContext2D, event: MouseEvent): void {
+  const r = (event.target as unknown as MouseEventTarget).getBoundingClientRect()
   const p = new Vector2D(event.clientX, event.clientY).from(new Vector2D(r.left, r.top))
   const found = circles.filter(p.collisionDetector)
   for (const circle of found) {
