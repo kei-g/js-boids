@@ -196,7 +196,7 @@ class Boid {
     this.circles.forEach(circle => circle.draw())
   }
 
-  set globalCompositeOperation(operation: string) {
+  set globalCompositeOperation(operation: GlobalCompositeOperation) {
     this.context.globalCompositeOperation = operation
   }
 
