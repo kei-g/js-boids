@@ -1,8 +1,24 @@
-version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - assignees:
+    - kei-g
+    directory: /
+    labels:
+      - ci
     open-pull-requests-limit: 16
+    package-ecosystem: github-actions
+    reviewers:
+      - kei-g
     schedule:
-      interval: "daily"
+      interval: daily
     target-branch: main
+  - assignees:
+      - kei-g
+    directory: /
+    open-pull-requests-limit: 16
+    package-ecosystem: npm
+    schedule:
+      interval: daily
+    reviewers:
+      - kei-g
+    target-branch: main
+version: 2
