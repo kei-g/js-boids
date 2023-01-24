@@ -24,8 +24,25 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+      - continue-on-error: true
+        id: difference
+        name: Check difference
+        run: |
+          git add -N .
+          git diff --name-only --exit-code
+      - if: steps.difference.outcome == 'failure'
+        name: Commit changes and push if necessary
+        run: |
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git config user.name github-actions[bot]
+          git add .
+          git commit --author=. -m ':robot: Build by GitHub Actions'
+          git push
 name: Build
 on:
   push:
     branches:
       - main
+    tags-ignore:
+      - '**'
+  workflow_dispatch:
