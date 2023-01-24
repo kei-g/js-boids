@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "DavidAnson.vscode-markdownlint",
+    "EditorConfig.EditorConfig",
+    "christian-kohler.npm-intellisense",
+    "codezombiech.gitignore",
+    "dbaeumer.vscode-eslint",
+    "kisstkondoros.vscode-codemetrics",
+    "redhat.vscode-yaml",
+    "streetsidesoftware.code-spell-checker",
+  ]
+}

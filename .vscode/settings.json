@@ -1,0 +1,21 @@
+{
+  "cSpell.ignorePaths": [
+    ".git/objects",
+    ".vscode",
+    ".vscode-insiders",
+    "*.js",
+    "node_modules",
+    "package-lock.json",
+    "vscode-extension",
+  ],
+  "files.associations": {
+    "**/LICENSE": "plaintext",
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+  },
+  "markdownlint.config": {
+    "MD033": false,
+    "MD041": false,
+  },
+}
