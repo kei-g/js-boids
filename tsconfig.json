@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "alwaysStrict": true,
-    "charset": "utf8",
     "downlevelIteration": true,
     "emitDecoratorMetadata": false,
     "experimentalDecorators": false,
