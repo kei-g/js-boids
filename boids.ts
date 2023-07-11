@@ -370,7 +370,7 @@ function updateBoids(boids: Boid[]): void {
   }
 }
 
-function generateBoids(param: { id: string, num: number }) {
+export function generateBoids(param: { id: string, num: number }) {
   const canvas = document.getElementById(param.id) as HTMLCanvasElement
   const context = canvas.getContext('2d')
   const circles: Circle[] = []
