@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="boids.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    // <!--
+    window.addEventListener('DOMContentLoaded', () => {
+      const b = generateBoids({ document, id: "boids", num: 128 })
+      setInterval(() => b.update(b.boids), 25)
+    })
+    // -->
+  </script>
+</head>
+
+<body>
+  <canvas id="boids" width="1280" height="720"></canvas>
+</body>
+
+</html>
