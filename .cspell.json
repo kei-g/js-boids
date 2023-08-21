@@ -2,6 +2,7 @@
   "allowCompoundWords": true,
   "version": "0.2",
   "words": [
+    "boid",
     "boids",
     "esbuild",
     "linebreak",
