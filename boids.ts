@@ -4,6 +4,8 @@ class Vector2D implements Vector2DLike {
   x: number
   y: number
 
+  constructor(x: number, y: number)
+  constructor(v: Vector2DLike)
   constructor(x: number | Vector2DLike, y?: number) {
     if (typeof (x) === 'number') {
       this.x = x
