@@ -272,10 +272,6 @@ class BoidRelationship {
   }
 }
 
-function within(lower: number, higher: number) {
-  return (value: number) => lower <= value && value <= higher
-}
-
 class Circle {
   readonly center: Vector2D
 
@@ -344,7 +340,7 @@ type MouseEventTarget = {
   getBoundingClientRect(): Rectangle
 }
 
-function addOrRemoveCircle(circles: Circle[], context: CanvasRenderingContext2D, event: MouseEvent): void {
+const addOrRemoveCircle = (circles: Circle[], context: CanvasRenderingContext2D, event: MouseEvent): void => {
   const r = (event.target as unknown as MouseEventTarget).getBoundingClientRect()
   const p = new Vector2D(event.clientX, event.clientY).from(new Vector2D(r.left, r.top))
   const found = circles.filter(p.collisionDetector)
@@ -356,7 +352,44 @@ function addOrRemoveCircle(circles: Circle[], context: CanvasRenderingContext2D,
     circles.push(new Circle(context, p.x, p.y))
 }
 
-function updateBoids(boids: Boid[]): void {
+const domContentLoaded = () => {
+  const canvas = document.getElementById('boids') as HTMLCanvasElement
+  canvas.onmouseup = event => addOrRemoveCircle(circles, context, event)
+  const context = canvas.getContext('2d')
+  const circles = generateCircles(canvas, context)
+  const boids = [] as Boid[]
+  const update = () => updateBoids(boids)
+  generateBoids(boids, canvas, circles, context)
+  const ctx = { intervalId: setInterval(update, 25) }
+  const resetButton = document.getElementById('reset-button')
+  resetButton.addEventListener(
+    'click',
+    (_event: MouseEvent) => {
+      clearInterval(ctx.intervalId)
+      boids.splice(0)
+      generateBoids(boids, canvas, circles, context)
+      ctx.intervalId = setInterval(update, 25)
+    }
+  )
+}
+
+const generateBoids = (boids: Boid[], canvas: HTMLCanvasElement, circles: Circle[], context: CanvasRenderingContext2D) => {
+  const { value } = document.getElementById('number-of-boids') as HTMLInputElement
+  for (let i = 0; i < parseInt(value); i++)
+    boids.push(new Boid(boids, canvas, circles, context, i))
+}
+
+const generateCircles = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => {
+  const circles = [] as Circle[]
+  for (let i = 0; i < 1; i++) {
+    const x = 100 + Math.random() * (canvas.width - 200)
+    const y = 100 + Math.random() * (canvas.height - 200)
+    circles.push(new Circle(context, x, y))
+  }
+  return circles
+}
+
+const updateBoids = (boids: Boid[]) => {
   const boid = boids[0]
   boid.globalCompositeOperation = 'source-over'
   boid.drawCanvas()
@@ -372,18 +405,6 @@ function updateBoids(boids: Boid[]): void {
   }
 }
 
-function generateBoids(param: { document: Document, id: string, num: number }) {
-  const canvas = param.document.getElementById(param.id) as HTMLCanvasElement
-  const context = canvas.getContext('2d')
-  const circles: Circle[] = []
-  for (let i = 0; i < 1; i++) {
-    const x = 100 + Math.random() * (canvas.width - 200)
-    const y = 100 + Math.random() * (canvas.height - 200)
-    circles.push(new Circle(context, x, y))
-  }
-  const boids: Boid[] = []
-  for (let i = 0; i < param.num; i++)
-    boids.push(new Boid(boids, canvas, circles, context, i))
-  canvas.onmouseup = event => addOrRemoveCircle(circles, context, event)
-  return { boids: boids, update: updateBoids }
-}
+const within = (lower: number, higher: number) => (value: number) => lower <= value && value <= higher
+
+window.addEventListener('DOMContentLoaded', domContentLoaded)

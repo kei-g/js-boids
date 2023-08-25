@@ -1,0 +1,35 @@
+#left-pane {
+  display: inline-block;
+  margin: 1rem;
+  padding: 0;
+  width: 10rem;
+}
+
+#right-pane {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}
+
+#left-pane>#parameters {
+  border-color: gray;
+  margin: 0;
+  padding: 0;
+}
+
+#parameters>.parameter {
+  margin: 0;
+  padding: 0.5rem;
+}
+
+.parameter>.head {
+  display: inline;
+  margin: 0;
+  padding: 0.125rem 1rem;
+  width: 4rem;
+}
+
+.parameter>.body {
+  display: inline;
+  max-width: 6rem;
+}
