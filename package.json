@@ -20,7 +20,7 @@
   "private": true,
   "repository": "github:kei-g/js-boids",
   "scripts": {
-    "build": "esbuild boids.ts --minify --outfile=boids.js --platform=browser --target=ES2015",
+    "build": "esbuild src/boids.ts --minify --outfile=boids.js --platform=browser --target=ES2015",
     "clean": "rimraf boids.js",
     "lint": "eslint **/*.ts",
     "prebuild": "run-p clean lint"

@@ -18,4 +18,8 @@
     "strictNullChecks": false,
     "target": "ES2015",
   },
+  "exclude": [],
+  "include": [
+    "src",
+  ],
 }
