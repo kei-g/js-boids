@@ -2,10 +2,12 @@
   "allowCompoundWords": true,
   "version": "0.2",
   "words": [
+    "bifmsq",
     "boid",
     "boids",
     "esbuild",
     "linebreak",
-    "noreply"
+    "noreply",
+    "svvh"
   ]
 }
