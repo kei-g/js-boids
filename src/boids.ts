@@ -99,17 +99,25 @@ type Vector2DLike = {
   y: number
 }
 
-abstract class Acceleration extends Vector2D {
+abstract class Acceleration<T> extends Vector2D {
   protected count: number
+  readonly #matched = [] as BoidRelationship[]
 
   constructor() {
     super(0, 0)
     this.count = 0
   }
 
-  add(vector: Vector2DLike): void {
-    super.add(vector)
-    this.count++
+  add(vector: Vector2DLike): void
+  add(relationship: BoidRelationship, arg: T): void
+  add(value: BoidRelationship | Vector2DLike, arg?: T): void {
+    if (value instanceof BoidRelationship) {
+      super.add(this.resolve(value, arg))
+      this.#matched.push(value)
+      this.count++
+    }
+    else
+      super.add(value)
   }
 
   effectTo(vector: Vector2D): void {
@@ -118,47 +126,77 @@ abstract class Acceleration extends Vector2D {
   }
 
   abstract match(relationship: BoidRelationship): boolean
-}
 
-abstract class Deceleration extends Acceleration {
-  add(vector: Vector2DLike): void {
-    super.sub(vector)
-    this.count++
+  get matched(): Iterable<BoidRelationship> {
+    return this.#matched
+  }
+
+  abstract resolve(relationship: BoidRelationship, arg: T): Vector2DLike
+
+  sub(vector: Vector2DLike): void
+  sub(relationship: BoidRelationship, arg: T): void
+  sub(value: BoidRelationship | Vector2DLike, arg?: T): void {
+    if (value instanceof BoidRelationship) {
+      super.sub(this.resolve(value, arg))
+      this.#matched.push(value)
+      this.count++
+    }
+    else
+      super.sub(value)
   }
 }
 
-class AvoidanceDeceleration extends Deceleration {
+abstract class Deceleration<T> extends Acceleration<T> {
+  add(vector: Vector2DLike): void
+  add(relationship: BoidRelationship, arg: T): void
+  add(value: BoidRelationship | Vector2DLike, arg?: T): void {
+    value instanceof BoidRelationship ? super.sub(value, arg) : super.sub(value)
+  }
+}
+
+class AvoidanceDeceleration extends Deceleration<void> {
   match(relationship: BoidRelationship): boolean {
     const matched = relationship.distance < 12
     if (matched)
-      this.add(relationship.vector.dividedBy(relationship.distance * 4))
+      this.add(relationship)
     return matched
+  }
+
+  resolve(relationship: BoidRelationship): Vector2DLike {
+    return relationship.vector.dividedBy(relationship.distance * 4)
   }
 }
 
-class FarAcceleration extends Acceleration {
+class FarAcceleration extends Acceleration<number> {
   match(relationship: BoidRelationship): boolean {
     const distance = relationship.distance
     for (let i = 0; i < 4; i++)
       if (distance < 48 + i * 24) {
-        this.add(relationship.vector.dividedBy(distance * (i + 1) * 8))
+        this.add(relationship, i)
         return true
       }
   }
+
+  resolve(relationship: BoidRelationship, i: number): Vector2DLike {
+    return relationship.vector.dividedBy(relationship.distance * (i + 1) * 8)
+  }
 }
 
-class SpreadAcceleration extends Acceleration {
+class SpreadAcceleration extends Acceleration<void> {
   constructor(private readonly spread: number) {
     super()
   }
 
   match(relationship: BoidRelationship): boolean {
     const matched = relationship.distance < this.spread
-    if (matched) {
-      const boid = relationship.relationalBoid
-      this.add(boid.velocity.dividedBy(boid.speed * 32))
-    }
+    if (matched)
+      this.add(relationship)
     return matched
+  }
+
+  resolve(relationship: BoidRelationship): Vector2DLike {
+    const boid = relationship.relationalBoid
+    return boid.velocity.dividedBy(boid.speed * 32)
   }
 }
 
@@ -281,8 +319,9 @@ class Boid {
 
   update(): void {
     this.velocity.copyTo(this.backup)
+    const avoidance = new AvoidanceDeceleration()
     const effects = [
-      new AvoidanceDeceleration(),
+      avoidance,
       new SpreadAcceleration(16 + Math.random() * 8),
       new FarAcceleration(),
     ]
@@ -290,6 +329,12 @@ class Boid {
       const relationship = new BoidRelationship(this, boid)
       effects.find(e => e.match(relationship))
     }
+    const delta = { suffocation: 0 }
+    for (const relationship of avoidance.matched) {
+      delta.suffocation = 0.03125
+      relationship.relationalBoid.degrees.suffocation += 0.03125
+    }
+    this.degrees.suffocation += delta.suffocation
     for (const e of effects)
       e.effectTo(this.velocity)
   }
