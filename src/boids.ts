@@ -162,21 +162,27 @@ class SpreadAcceleration extends Acceleration {
 }
 
 class Boid {
+  static readonly all = [] as Boid[]
+  static readonly circles = [] as Circle[]
+
   private readonly backup = new Vector2D(0, 0)
+  readonly degrees = {
+    suffocation: 0,
+  }
   readonly position: Vector2D
   readonly velocity: Vector2D
 
-  constructor(private readonly all: Boid[], private readonly canvas: HTMLCanvasElement, private readonly circles: Circle[], private readonly context: CanvasRenderingContext2D, private readonly index: number) {
+  constructor(private readonly canvas: HTMLCanvasElement, private readonly context: CanvasRenderingContext2D) {
     do {
       const x = 20 + Math.random() * (canvas.width - 40)
       const y = 20 + Math.random() * (canvas.height - 40)
       this.position = new Vector2D(x, y)
-    } while (circles.some(this.position.collisionDetector))
+    } while (Boid.circles.some(this.position.collisionDetector))
     this.velocity = new Vector2D(1 - Math.random() * 2, 1 - Math.random() * 2)
   }
 
   private avoidCircles(): void {
-    for (const c of this.circles.filter(this.position.collisionDetector)) {
+    for (const c of Boid.circles.filter(this.position.collisionDetector)) {
       this.position.sub(this.velocity)
       const p = c.intersectingPoint(this)
       p?.rotate(this) ?? (this.position.from(c.center).copyTo(this.velocity), this.normalize())
@@ -186,22 +192,10 @@ class Boid {
 
   draw(): void {
     this.context.beginPath()
-    this.context.fillStyle = 'rgb(255, 128, 0)'
+    this.context.fillStyle = `rgb(255, ${Math.max(128 - this.degrees.suffocation, 0)}, 0)`
     this.context.arc(this.position.x, this.position.y, 1, 0, Math.PI * 2, true)
     this.context.fill()
-  }
-
-  drawCanvas(): void {
-    this.context.fillStyle = 'rgba(0, 0, 0, .1)'
-    this.context.fillRect(0, 0, this.canvas.width, this.canvas.height)
-  }
-
-  drawCircles(): void {
-    this.circles.forEach(circle => circle.draw())
-  }
-
-  set globalCompositeOperation(operation: GlobalCompositeOperation) {
-    this.context.globalCompositeOperation = operation
+    this.context.closePath()
   }
 
   move(): void {
@@ -226,7 +220,7 @@ class Boid {
   }
 
   get others(): Boid[] {
-    return this.all.filter((_, index) => index != this.index)
+    return Boid.all.filter((boid: Boid) => boid !== this)
   }
 
   get speed(): number {
@@ -254,6 +248,7 @@ class Boid {
 
   update(): void {
     this.velocity.copyTo(this.backup)
+    this.updateSuffocation()
     const effects = [
       new AvoidanceDeceleration(),
       new SpreadAcceleration(16 + Math.random() * 8),
@@ -266,13 +261,18 @@ class Boid {
     for (const e of effects)
       e.effectTo(this.velocity)
   }
+
+  private updateSuffocation(): void {
+    this.degrees.suffocation += [-0.125, 1][+Boid.circles.some((circle: Circle) => circle.doesCollide(this.position))]
+    this.degrees.suffocation = Math.max(0, this.degrees.suffocation)
+  }
 }
 
 class BoidRelationship {
   readonly distance: number
   readonly vector: Vector2D
 
-  constructor(readonly baseBoid: Boid, readonly relationalBoid: Boid) {
+  constructor(baseBoid: Boid, readonly relationalBoid: Boid) {
     this.vector = relationalBoid.position.from(baseBoid.position)
     this.distance = this.vector.length
   }
@@ -346,43 +346,42 @@ type MouseEventTarget = {
   getBoundingClientRect(): Rectangle
 }
 
-const addOrRemoveCircle = (circles: Circle[], context: CanvasRenderingContext2D, event: MouseEvent): void => {
+const addOrRemoveCircle = (context: CanvasRenderingContext2D, event: MouseEvent): void => {
   const r = (event.target as unknown as MouseEventTarget).getBoundingClientRect()
   const p = new Vector2D(event.clientX, event.clientY).from(new Vector2D(r.left, r.top))
-  const found = circles.filter(p.collisionDetector)
+  const found = Boid.circles.filter(p.collisionDetector)
   for (const circle of found) {
-    const index = circles.indexOf(circle)
-    circles.splice(index, 1)
+    const index = Boid.circles.indexOf(circle)
+    Boid.circles.splice(index, 1)
   }
   if (found.length == 0)
-    circles.push(new Circle(context, p.x, p.y))
+    Boid.circles.push(new Circle(context, p.x, p.y))
 }
 
 const domContentLoaded = () => {
   const canvas = document.getElementById('boids') as HTMLCanvasElement
-  canvas.onmouseup = event => addOrRemoveCircle(circles, context, event)
+  canvas.onmouseup = event => addOrRemoveCircle(context, event)
   const context = canvas.getContext('2d')
-  const circles = generateCircles(canvas, context)
-  const boids = [] as Boid[]
-  const update = () => updateBoids(boids)
-  generateBoids(boids, canvas, circles, context)
+  Boid.circles.push(...generateCircles(canvas, context))
+  const update = () => updateBoids(canvas, context)
+  generateBoids(canvas, context)
   const ctx = { intervalId: setInterval(update, 25) }
   const resetButton = document.getElementById('reset-button')
   resetButton.addEventListener(
     'click',
     (_event: MouseEvent) => {
       clearInterval(ctx.intervalId)
-      boids.splice(0)
-      generateBoids(boids, canvas, circles, context)
+      generateBoids(canvas, context)
       ctx.intervalId = setInterval(update, 25)
     }
   )
 }
 
-const generateBoids = (boids: Boid[], canvas: HTMLCanvasElement, circles: Circle[], context: CanvasRenderingContext2D) => {
+const generateBoids = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => {
   const { value } = document.getElementById('number-of-boids') as HTMLInputElement
+  Boid.all.splice(0)
   for (let i = 0; i < parseInt(value); i++)
-    boids.push(new Boid(boids, canvas, circles, context, i))
+    Boid.all.push(new Boid(canvas, context))
 }
 
 const generateCircles = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => {
@@ -395,17 +394,22 @@ const generateCircles = (canvas: HTMLCanvasElement, context: CanvasRenderingCont
   return circles
 }
 
-const updateBoids = (boids: Boid[]) => {
-  const boid = boids[0]
-  boid.globalCompositeOperation = 'source-over'
-  boid.drawCanvas()
-  boid.drawCircles()
-  boid.globalCompositeOperation = 'lighter'
-  for (const boid of boids) {
+const updateBoids = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => {
+  context.globalCompositeOperation = 'source-over'
+  context.fillStyle = 'rgba(0, 0, 0, .1)'
+  context.fillRect(0, 0, canvas.width, canvas.height)
+  Boid.circles.forEach((circle: Circle) => circle.draw())
+  context.globalCompositeOperation = 'lighter'
+  const alive = new Set<Boid>()
+  for (const boid of Boid.all) {
     boid.draw()
     boid.update()
+    if (boid.degrees.suffocation < 128)
+      alive.add(boid)
   }
-  for (const boid of boids) {
+  Boid.all.splice(0)
+  Boid.all.push(...alive)
+  for (const boid of Boid.all) {
     boid.normalize()
     boid.move()
   }
