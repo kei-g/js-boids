@@ -5,8 +5,8 @@
   gap: 1ex;
 }
 
-.flex {
-  display: flex;
+#boids {
+  width: calc(100vw - 10em);
 }
 
 #left-pane,
@@ -23,7 +23,6 @@
 }
 
 #left-pane>#parameters {
-  border-color: gray;
   margin: 0;
   padding: 0;
   width: fit-content;
@@ -38,13 +37,48 @@
 }
 
 #number-of-living-boids {
-  align-self: center;
-  font-family: monospace;
+  left: 1em;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  top: calc(2em - 100%);
+  width: fit-content;
 }
 
-#number-of-living-boids::after {
-  color: initial;
-  content: '/';
+#number-of-living-boids[face='bad']::before {
+  content: '\1F629';
+}
+
+#number-of-living-boids[face='not-good']::before {
+  content: '\1F635';
+}
+
+#number-of-living-boids[face='good']::before {
+  content: '\1F642';
+}
+
+#number-of-living-boids[status='perfect']::before {
+  content: '\1F606';
+}
+
+#number-of-living-boids[face='warn']::before {
+  content: '\1F625';
+}
+
+#number-of-living-boids[status='bad'] {
+  color: red;
+}
+
+#number-of-living-boids[status='good'] {
+  color: white;
+}
+
+#number-of-living-boids[status='not-good'] {
+  color: yellow;
+}
+
+#number-of-living-boids[status='perfect'] {
+  color: green;
 }
 
 #parameters>.parameter {

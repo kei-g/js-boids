@@ -198,10 +198,15 @@ class Boid {
     this.context.closePath()
   }
 
+  get isSuffocating(): boolean {
+    return 0 < this.degrees.suffocation
+  }
+
   move(): void {
     this.nextPoint.copyTo(this.position)
     this.avoidCircles()
     this.turnOverByEdgeOfCanvas()
+    this.updateSuffocation()
   }
 
   get nextPoint(): Vector2D {
@@ -248,7 +253,6 @@ class Boid {
 
   update(): void {
     this.velocity.copyTo(this.backup)
-    this.updateSuffocation()
     const effects = [
       new AvoidanceDeceleration(),
       new SpreadAcceleration(16 + Math.random() * 8),
@@ -335,20 +339,13 @@ class IntersectingPoint {
   }
 }
 
-type Rectangle = {
-  bottom: number
-  left: number
-  right: number
-  top: number
-}
-
-type MouseEventTarget = {
-  getBoundingClientRect(): Rectangle
-}
-
 const addOrRemoveCircle = (context: CanvasRenderingContext2D, event: MouseEvent): void => {
-  const r = (event.target as unknown as MouseEventTarget).getBoundingClientRect()
-  const p = new Vector2D(event.clientX, event.clientY).from(new Vector2D(r.left, r.top))
+  const c = event.target as unknown as HTMLCanvasElement
+  const r = c.getBoundingClientRect()
+  const v = new Vector2D(event.x, event.y).from(new Vector2D(r.left, r.top))
+  const { x } = v.scaledBy(c.width / r.width)
+  const { y } = v.scaledBy(c.height / r.height)
+  const p = new Vector2D(x, y)
   const found = Boid.circles.filter(p.collisionDetector)
   for (const circle of found) {
     const index = Boid.circles.indexOf(circle)
@@ -357,6 +354,8 @@ const addOrRemoveCircle = (context: CanvasRenderingContext2D, event: MouseEvent)
   if (found.length == 0)
     Boid.circles.push(new Circle(context, p.x, p.y))
 }
+
+const areAnyoneSuffocating = (boids: Iterable<Boid>): boolean => [...boids].some((boid: Boid) => boid.isSuffocating)
 
 const domContentLoaded = () => {
   const canvas = document.getElementById('boids') as HTMLCanvasElement
@@ -409,6 +408,11 @@ const updateBoids = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2
   }
   const living = document.getElementById('number-of-living-boids') as HTMLSpanElement
   living.textContent = alive.size.toString()
+  const num = parseInt((document.getElementById('number-of-boids') as HTMLInputElement).value)
+  const statusIndex = Math.floor(alive.size * 3 / num)
+  const status = ['bad', 'not-good', 'good', 'perfect'][statusIndex]
+  living.setAttribute('face', [status, 'warn'][+(1 < statusIndex && areAnyoneSuffocating(alive))])
+  living.setAttribute('status', status)
   Boid.all.splice(0)
   Boid.all.push(...alive)
   for (const boid of Boid.all) {
