@@ -20,10 +20,11 @@
   "private": true,
   "repository": "github:kei-g/js-boids",
   "scripts": {
-    "build": "esbuild src/boids.ts --bundle --format=esm --minify --outfile=boids.js --platform=browser --target=ES2021",
+    "build": "run-p bundle lint",
+    "bundle": "esbuild src/boids.ts --bundle --format=esm --minify --outfile=boids.js --platform=browser --target=ES2021",
     "clean": "rimraf boids.js",
     "lint": "eslint **/*.ts",
-    "prebuild": "run-p clean lint"
+    "prebuild": "run-s clean"
   },
   "version": "1.0.0"
 }
