@@ -433,12 +433,16 @@ const createSession = (): Session => {
 }
 
 const domContentLoaded = () => {
+  const applySize = (): void => (canvas.height = canvas.clientHeight, canvas.width = canvas.clientWidth, undefined)
   const canvas = document.getElementById('boids') as HTMLCanvasElement
+  window.addEventListener('resize', applySize)
+  applySize()
   canvas.onmouseup = event => addOrRemoveCircle(context, event)
   const context = canvas.getContext('2d')
   const ctx = { session: createSession() }
+  const regenerate = (): void => (ctx.session = ctx.session.regenerate(ctx.session), undefined)
   const resetButton = document.getElementById('reset-button')
-  resetButton.addEventListener('click', (_event: MouseEvent) => ctx.session = ctx.session.regenerate(ctx.session))
+  resetButton.addEventListener('click', regenerate)
 }
 
 const findSession = () => {
