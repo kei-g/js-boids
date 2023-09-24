@@ -14,8 +14,11 @@
     <div id="left-pane">
       <div id="parameters">
         <div class="parameter">
-          <span class="head">個体数</span>
-          <input class="body" id="number-of-boids" type="number" value="128" />
+          <label class="head" for="number-of-boids">個体数</label>
+          <div class="body flex">
+            <span id="number-of-living-boids"></span>
+            <input id="number-of-boids" type="number" value="128" />
+          </div>
         </div>
       </div>
       <div id="controller">

@@ -407,6 +407,8 @@ const updateBoids = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2
     if (boid.degrees.suffocation < 128)
       alive.add(boid)
   }
+  const living = document.getElementById('number-of-living-boids') as HTMLSpanElement
+  living.textContent = alive.size.toString()
   Boid.all.splice(0)
   Boid.all.push(...alive)
   for (const boid of Boid.all) {

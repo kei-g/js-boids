@@ -1,35 +1,63 @@
-#left-pane {
-  display: inline-block;
-  margin: 1rem;
-  padding: 0;
-  width: 10rem;
+:has(>#left-pane),
+:has(>#right-page) {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 1ex;
 }
 
+.flex {
+  display: flex;
+}
+
+#left-pane,
 #right-pane {
-  display: inline-block;
   margin: 0;
   padding: 0;
+  width: fit-content;
+}
+
+#left-pane>#controller {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
 }
 
 #left-pane>#parameters {
   border-color: gray;
   margin: 0;
   padding: 0;
+  width: fit-content;
+}
+
+#number-of-boids {
+  max-width: 4em;
+}
+
+#number-of-living-boids {
+  pointer-events: none;
+}
+
+#number-of-living-boids {
+  align-self: center;
+  font-family: monospace;
+}
+
+#number-of-living-boids::after {
+  color: initial;
+  content: '/';
 }
 
 #parameters>.parameter {
+  align-items: center;
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 1ex;
   margin: 0;
-  padding: 0.5rem;
+  padding: 1ex 0;
 }
 
 .parameter>.head {
-  display: inline;
-  margin: 0;
-  padding: 0.125rem 1rem;
-  width: 4rem;
-}
-
-.parameter>.body {
-  display: inline;
-  max-width: 6rem;
+  text-align: center;
+  text-wrap: nowrap;
+  width: 3em;
 }
