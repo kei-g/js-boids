@@ -162,6 +162,7 @@ class SpreadAcceleration extends Acceleration {
 }
 
 class Boid {
+  private readonly backup = new Vector2D(0, 0)
   readonly position: Vector2D
   readonly velocity: Vector2D
 
@@ -204,13 +205,17 @@ class Boid {
   }
 
   move(): void {
-    this.position.add(this.velocity)
+    this.nextPoint.copyTo(this.position)
     this.avoidCircles()
     this.turnOverByEdgeOfCanvas()
   }
 
   get nextPoint(): Vector2D {
-    return this.position.added(this.velocity)
+    return this.position.added(this.nextVelocity)
+  }
+
+  get nextVelocity(): Vector2D {
+    return this.velocity.added(this.backup).dividedBy(2)
   }
 
   normalize(): void {
@@ -248,6 +253,7 @@ class Boid {
   }
 
   update(): void {
+    this.velocity.copyTo(this.backup)
     const effects = [
       new AvoidanceDeceleration(),
       new SpreadAcceleration(16 + Math.random() * 8),
