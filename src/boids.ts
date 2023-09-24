@@ -10,7 +10,8 @@ class Vector2D implements Vector2DLike {
     if (typeof (x) === 'number') {
       this.x = x
       this.y = y
-    } else {
+    }
+    else {
       this.x = x.x
       this.y = x?.y ?? y
     }
