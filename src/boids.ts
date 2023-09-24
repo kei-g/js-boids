@@ -436,7 +436,6 @@ const domContentLoaded = () => {
   const canvas = document.getElementById('boids') as HTMLCanvasElement
   canvas.onmouseup = event => addOrRemoveCircle(context, event)
   const context = canvas.getContext('2d')
-  Boid.circles.push(...generateCircles(canvas, context))
   const ctx = { session: createSession() }
   const resetButton = document.getElementById('reset-button')
   resetButton.addEventListener('click', (_event: MouseEvent) => ctx.session = ctx.session.regenerate(ctx.session))
@@ -448,16 +447,6 @@ const findSession = () => {
     if (session)
       return session
   }
-}
-
-const generateCircles = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => {
-  const circles = [] as Circle[]
-  for (let i = 0; i < 1; i++) {
-    const x = 100 + Math.random() * (canvas.width - 200)
-    const y = 100 + Math.random() * (canvas.height - 200)
-    circles.push(new Circle(context, x, y))
-  }
-  return circles
 }
 
 const summarize = <T>(source: Iterable<T>) => (selector: (value: T) => number) => {
