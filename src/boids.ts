@@ -165,17 +165,24 @@ class Boid {
   static readonly all = [] as Boid[]
   static readonly circles = [] as Circle[]
 
+  readonly #session: WeakRef<Session>
+
   private readonly backup = new Vector2D(0, 0)
+  private readonly canvas: HTMLCanvasElement
+  private readonly context: CanvasRenderingContext2D
   readonly degrees = {
     suffocation: 0,
   }
   readonly position: Vector2D
   readonly velocity: Vector2D
 
-  constructor(private readonly canvas: HTMLCanvasElement, private readonly context: CanvasRenderingContext2D) {
+  constructor(session: Session) {
+    this.#session = new WeakRef(session)
+    this.canvas = session.canvas
+    this.context = session.context
     do {
-      const x = 20 + Math.random() * (canvas.width - 40)
-      const y = 20 + Math.random() * (canvas.height - 40)
+      const x = 20 + Math.random() * (session.canvas.width - 40)
+      const y = 20 + Math.random() * (session.canvas.height - 40)
       this.position = new Vector2D(x, y)
     } while (Boid.circles.some(this.position.collisionDetector))
     this.velocity = new Vector2D(1 - Math.random() * 2, 1 - Math.random() * 2)
@@ -226,6 +233,10 @@ class Boid {
 
   get others(): Boid[] {
     return Boid.all.filter((boid: Boid) => boid !== this)
+  }
+
+  get session(): Session {
+    return this.#session.deref()
   }
 
   get speed(): number {
@@ -339,6 +350,14 @@ class IntersectingPoint {
   }
 }
 
+type Session = {
+  canvas: HTMLCanvasElement
+  context: CanvasRenderingContext2D
+  intervalId: NodeJS.Timeout
+  numberOfBoids: number
+  regenerate: (session: Session) => Session
+}
+
 const addOrRemoveCircle = (context: CanvasRenderingContext2D, event: MouseEvent): void => {
   const c = event.target as unknown as HTMLCanvasElement
   const r = c.getBoundingClientRect()
@@ -357,30 +376,41 @@ const addOrRemoveCircle = (context: CanvasRenderingContext2D, event: MouseEvent)
 
 const areAnyoneSuffocating = (boids: Iterable<Boid>): boolean => [...boids].some((boid: Boid) => boid.isSuffocating)
 
+const createSession = (): Session => {
+  Boid.all.splice(0)
+  const canvas = document.getElementById('boids') as HTMLCanvasElement
+  const context = canvas.getContext('2d')
+  const update = () => updateBoids(canvas, context)
+  const { value } = document.getElementById('number-of-boids') as HTMLInputElement
+  const numberOfBoids = parseInt(value)
+  const session = {
+    canvas,
+    context,
+    numberOfBoids,
+  } as Session
+  for (let i = 0; i < numberOfBoids; i++)
+    Boid.all.push(new Boid(session))
+  session.intervalId = setInterval(update, 25)
+  session.regenerate = (s: Session) => (clearInterval(s.intervalId), createSession())
+  return session
+}
+
 const domContentLoaded = () => {
   const canvas = document.getElementById('boids') as HTMLCanvasElement
   canvas.onmouseup = event => addOrRemoveCircle(context, event)
   const context = canvas.getContext('2d')
   Boid.circles.push(...generateCircles(canvas, context))
-  const update = () => updateBoids(canvas, context)
-  generateBoids(canvas, context)
-  const ctx = { intervalId: setInterval(update, 25) }
+  const ctx = { session: createSession() }
   const resetButton = document.getElementById('reset-button')
-  resetButton.addEventListener(
-    'click',
-    (_event: MouseEvent) => {
-      clearInterval(ctx.intervalId)
-      generateBoids(canvas, context)
-      ctx.intervalId = setInterval(update, 25)
-    }
-  )
+  resetButton.addEventListener('click', (_event: MouseEvent) => ctx.session = ctx.session.regenerate(ctx.session))
 }
 
-const generateBoids = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => {
-  const { value } = document.getElementById('number-of-boids') as HTMLInputElement
-  Boid.all.splice(0)
-  for (let i = 0; i < parseInt(value); i++)
-    Boid.all.push(new Boid(canvas, context))
+const findSession = () => {
+  for (const boid of Boid.all) {
+    const { session } = boid
+    if (session)
+      return session
+  }
 }
 
 const generateCircles = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => {
@@ -391,6 +421,13 @@ const generateCircles = (canvas: HTMLCanvasElement, context: CanvasRenderingCont
     circles.push(new Circle(context, x, y))
   }
   return circles
+}
+
+const summarize = <T>(source: Iterable<T>) => (selector: (value: T) => number) => {
+  const ctx = { count: 0, sum: 0 }
+  for (const value of source)
+    ctx.sum += selector(value)
+  return ctx
 }
 
 const updateBoids = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => {
@@ -407,12 +444,24 @@ const updateBoids = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2
       alive.add(boid)
   }
   const living = document.getElementById('number-of-living-boids') as HTMLSpanElement
-  living.textContent = alive.size.toString()
-  const num = parseInt((document.getElementById('number-of-boids') as HTMLInputElement).value)
-  const statusIndex = Math.floor(alive.size * 3 / num)
-  const status = ['bad', 'not-good', 'good', 'perfect'][statusIndex]
-  living.setAttribute('face', [status, 'warn'][+(1 < statusIndex && areAnyoneSuffocating(alive))])
-  living.setAttribute('status', status)
+  const health = document.getElementById('health-of-living-boids') as HTMLSpanElement
+  const session = findSession()
+  if (session) {
+    const num = session.numberOfBoids
+    const statusIndex = Math.floor(alive.size * 3 / num)
+    const status = ['bad', 'not-good', 'good', 'perfect'][statusIndex]
+    living.setAttribute('face', [status, 'warn'][+(1 < statusIndex && areAnyoneSuffocating(alive))])
+    living.setAttribute('status', status)
+    living.textContent = alive.size.toString()
+    const { sum } = summarize(alive)((boid: Boid) => 128 - boid.degrees.suffocation)
+    health.textContent = '\u{1F31F}' + Math.floor(sum * 9999 / (num * 128))
+  }
+  else {
+    living.removeAttribute('face')
+    living.removeAttribute('status')
+    living.textContent = ''
+    health.textContent = ''
+  }
   Boid.all.splice(0)
   Boid.all.push(...alive)
   for (const boid of Boid.all) {

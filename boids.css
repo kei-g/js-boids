@@ -9,6 +9,26 @@
   width: calc(100vw - 10em);
 }
 
+#health-of-living-boids {
+  color: white;
+  pointer-events: none;
+}
+
+canvas+.inside-canvas {
+  display: inline-flex;
+  flex-flow: row wrap;
+  font-family: monospace;
+  font-size: 2em;
+  gap: 1em;
+  left: 1em;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+  position: relative;
+  top: calc(2em - 100%);
+  width: fit-content;
+}
+
 #left-pane,
 #right-pane {
   margin: 0;
@@ -34,15 +54,6 @@
 
 #number-of-living-boids {
   pointer-events: none;
-}
-
-#number-of-living-boids {
-  left: 1em;
-  margin: 0;
-  padding: 0;
-  position: relative;
-  top: calc(2em - 100%);
-  width: fit-content;
 }
 
 #number-of-living-boids[face='bad']::before {
