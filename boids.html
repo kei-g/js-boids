@@ -15,10 +15,11 @@
       <div id="parameters">
         <div class="parameter">
           <label class="head" for="number-of-boids">個体数</label>
-          <input class="body" id="number-of-boids" type="number" value="100" />
+          <input class="body" id="number-of-boids" min="1" type="number" value="100" />
         </div>
       </div>
       <div id="controller">
+        <input id="max-number-of-boids" type="hidden" value="400" />
         <input id="reset-button" type="button" value="リセット" />
       </div>
     </div>

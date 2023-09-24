@@ -411,18 +411,22 @@ const addOrRemoveCircle = (context: CanvasRenderingContext2D, event: MouseEvent)
 
 const areAnyoneSuffocating = (boids: Iterable<Boid>): boolean => [...boids].some((boid: Boid) => boid.isSuffocating)
 
+const clamp = (value: number, lower: number, upper: number, alternate: number) => isNaN(value) ? alternate : Math.max(lower, Math.min(value, upper))
+
 const createSession = (): Session => {
   Boid.all.splice(0)
   const canvas = document.getElementById('boids') as HTMLCanvasElement
   const context = canvas.getContext('2d')
   const update = () => updateBoids(canvas, context)
-  const { value } = document.getElementById('number-of-boids') as HTMLInputElement
-  const numberOfBoids = parseInt(value)
+  const nob = document.getElementById('number-of-boids') as HTMLInputElement
+  const mnb = document.getElementById('max-number-of-boids') as HTMLInputElement
+  const numberOfBoids = clamp(parseInt(nob.value), 1, parseInt(mnb.value), 100)
   const session = {
     canvas,
     context,
     numberOfBoids,
   } as Session
+  nob.value = numberOfBoids.toString()
   for (let i = 0; i < numberOfBoids; i++) {
     const r = Math.floor(Math.random() * 2)
     const ctor = [Boid, BlueBoid][r]
