@@ -197,9 +197,25 @@ class Boid {
     }
   }
 
+  get color(): string {
+    return [this.colorForRed, this.colorForGreen, this.colorForBlue].join(',')
+  }
+
+  get colorForBlue(): number {
+    return 0
+  }
+
+  get colorForGreen(): number {
+    return Math.min(Math.max(0, 255 - this.degrees.suffocation ** 1.125), 128)
+  }
+
+  get colorForRed(): number {
+    return 255
+  }
+
   draw(): void {
     this.context.beginPath()
-    this.context.fillStyle = `rgb(255, ${Math.max(128 - this.degrees.suffocation, 0)}, 0)`
+    this.context.fillStyle = `rgb(${this.color})`
     this.context.arc(this.position.x, this.position.y, 1, 0, Math.PI * 2, true)
     this.context.fill()
     this.context.closePath()
@@ -280,6 +296,24 @@ class Boid {
   private updateSuffocation(): void {
     this.degrees.suffocation += [-0.125, 1][+Boid.circles.some((circle: Circle) => circle.doesCollide(this.position))]
     this.degrees.suffocation = Math.max(0, this.degrees.suffocation)
+  }
+}
+
+class BlueBoid extends Boid {
+  constructor(session: Session) {
+    super(session)
+  }
+
+  get colorForBlue(): number {
+    return Math.min(Math.max(0, 255 - this.degrees.suffocation ** 1.125), 255)
+  }
+
+  get colorForGreen(): number {
+    return Math.min(Math.max(0, 255 - this.degrees.suffocation ** 1.125), 128)
+  }
+
+  get colorForRed(): number {
+    return Math.max(0, Math.min(this.degrees.suffocation * 255 / 128, 255))
   }
 }
 
@@ -388,8 +422,11 @@ const createSession = (): Session => {
     context,
     numberOfBoids,
   } as Session
-  for (let i = 0; i < numberOfBoids; i++)
-    Boid.all.push(new Boid(session))
+  for (let i = 0; i < numberOfBoids; i++) {
+    const r = Math.floor(Math.random() * 2)
+    const ctor = [Boid, BlueBoid][r]
+    Boid.all.push(new ctor(session))
+  }
   session.intervalId = setInterval(update, 25)
   session.regenerate = (s: Session) => (clearInterval(s.intervalId), createSession())
   return session
