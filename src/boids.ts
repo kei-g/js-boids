@@ -1,63 +1,86 @@
 type CollisionDetector = (circle: Circle) => boolean
 
-class Vector2D implements Vector2DLike {
-  x: number
-  y: number
+class Vector2D {
+  private $dirty: boolean
+  private $length: number
+  private $x: number
+  private $y: number
 
+  constructor(v: Vector2D)
   constructor(x: number, y: number)
-  constructor(v: Vector2DLike)
-  constructor(x: number | Vector2DLike, y?: number) {
-    if (typeof (x) === 'number') {
-      this.x = x
-      this.y = y
+  constructor(a: Vector2D | number, b?: number) {
+    if (typeof (a) === 'number') {
+      this.$dirty = true
+      this.$x = a
+      this.$y = b
     }
     else {
-      this.x = x.x
-      this.y = x?.y ?? y
+      this.$dirty = a.$dirty
+      this.$length = a.$length
+      this.$x = a.x
+      this.$y = a.y
     }
   }
 
-  add(vector: Vector2DLike): void {
-    this.x += vector.x
-    this.y += vector.y
+  add(vector: Vector2D): void {
+    this.$dirty = true
+    this.$x += vector.x
+    this.$y += vector.y
   }
 
-  added(vector: Vector2DLike): Vector2D {
-    return new Vector2D(this.x + vector.x, this.y + vector.y)
+  added(vector: Vector2D): Vector2D {
+    return new Vector2D(this.$x + vector.x, this.$y + vector.y)
+  }
+
+  get clone(): Vector2D {
+    return new Vector2D(this)
   }
 
   get collisionDetector(): CollisionDetector {
     return circle => circle.doesCollide(this)
   }
 
-  copyTo(other: Vector2DLike): void {
-    other.x = this.x
-    other.y = this.y
+  copyTo(other: Vector2D): void {
+    other.$dirty = this.$dirty
+    other.$length = this.$length
+    other.$x = this.$x
+    other.$y = this.$y
   }
 
-  crossProduct(vector: Vector2DLike): number {
-    return this.x * vector.y - this.y * vector.x
+  crossProduct(vector: Vector2D): number {
+    return this.$x * vector.y - this.$y * vector.x
   }
 
   divide(divisor: number): void {
-    this.x /= divisor
-    this.y /= divisor
+    if (!this.$dirty)
+      this.$length /= divisor
+    this.$x /= divisor
+    this.$y /= divisor
   }
 
   dividedBy(divisor: number): Vector2D {
-    return new Vector2D(this.x / divisor, this.y / divisor)
+    const v = this.clone
+    if (!v.$dirty)
+      v.$length /= divisor
+    v.$x /= divisor
+    v.$y /= divisor
+    return v
   }
 
-  dotProduct(vector: Vector2DLike): number {
-    return this.x * vector.x + this.y * vector.y
+  dotProduct(vector: Vector2D): number {
+    return this.$x * vector.x + this.$y * vector.y
   }
 
-  from(vector: Vector2DLike): Vector2D {
-    return new Vector2D(this.x - vector.x, this.y - vector.y)
+  from(vector: Vector2D): Vector2D {
+    return new Vector2D(this.$x - vector.x, this.$y - vector.y)
   }
 
   get length(): number {
-    return Math.hypot(this.x, this.y)
+    if (this.$dirty) {
+      this.$dirty = false
+      this.$length = Math.hypot(this.$x, this.$y)
+    }
+    return this.$length
   }
 
   get squareOfLength(): number {
@@ -65,38 +88,67 @@ class Vector2D implements Vector2DLike {
   }
 
   get retrorse(): Vector2D {
-    return new Vector2D(-this.x, -this.y)
+    const v = this.clone
+    v.$x = -v.$x
+    v.$y = -v.$y
+    return v
   }
 
   rotate(radian: number): void {
-    const [c, s, x, y] = [Math.cos(radian), Math.sin(radian), this.x, this.y]
-    this.x = x * c - y * s
-    this.y = x * s + y * c
+    const [c, s, x, y] = [Math.cos(radian), Math.sin(radian), this.$x, this.$y]
+    this.$x = x * c - y * s
+    this.$y = x * s + y * c
   }
 
   rotatedBy(radian: number): Vector2D {
     const [c, s] = [Math.cos(radian), Math.sin(radian)]
-    return new Vector2D(this.x * c - this.y * s, this.x * s + this.y * c)
+    const x = this.$x * c - this.$y * s
+    const y = this.$x * s + this.$y * c
+    const v = this.clone
+    v.$x = x
+    v.$y = y
+    return v
   }
 
   scale(scale: number): void {
-    this.x *= scale
-    this.y *= scale
+    if (!this.$dirty)
+      this.$length *= scale
+    this.$x *= scale
+    this.$y *= scale
   }
 
   scaledBy(scale: number): Vector2D {
-    return new Vector2D(this.x * scale, this.y * scale)
+    const v = this.clone
+    if (!this.$dirty)
+      v.$length *= scale
+    v.$x *= scale
+    v.$y *= scale
+    return v
   }
 
-  sub(vector: Vector2DLike): void {
-    this.x -= vector.x
-    this.y -= vector.y
+  sub(vector: Vector2D): void {
+    this.$dirty = true
+    this.$x -= vector.x
+    this.$y -= vector.y
   }
-}
 
-type Vector2DLike = {
-  x: number
-  y: number
+  get x(): number {
+    return this.$x
+  }
+
+  set x(value: number) {
+    this.$dirty = true
+    this.$x = value
+  }
+
+  get y(): number {
+    return this.$y
+  }
+
+  set y(value: number) {
+    this.$dirty = true
+    this.$y = value
+  }
 }
 
 abstract class Acceleration<T> extends Vector2D {
@@ -108,9 +160,9 @@ abstract class Acceleration<T> extends Vector2D {
     this.count = 0
   }
 
-  add(vector: Vector2DLike): void
+  add(vector: Vector2D): void
   add(relationship: BoidRelationship, arg: T): void
-  add(value: BoidRelationship | Vector2DLike, arg?: T): void {
+  add(value: BoidRelationship | Vector2D, arg?: T): void {
     if (value instanceof BoidRelationship) {
       super.add(this.resolve(value, arg))
       this.#matched.push(value)
@@ -131,11 +183,11 @@ abstract class Acceleration<T> extends Vector2D {
     return this.#matched
   }
 
-  abstract resolve(relationship: BoidRelationship, arg: T): Vector2DLike
+  abstract resolve(relationship: BoidRelationship, arg: T): Vector2D
 
-  sub(vector: Vector2DLike): void
+  sub(vector: Vector2D): void
   sub(relationship: BoidRelationship, arg: T): void
-  sub(value: BoidRelationship | Vector2DLike, arg?: T): void {
+  sub(value: BoidRelationship | Vector2D, arg?: T): void {
     if (value instanceof BoidRelationship) {
       super.sub(this.resolve(value, arg))
       this.#matched.push(value)
@@ -147,9 +199,9 @@ abstract class Acceleration<T> extends Vector2D {
 }
 
 abstract class Deceleration<T> extends Acceleration<T> {
-  add(vector: Vector2DLike): void
+  add(vector: Vector2D): void
   add(relationship: BoidRelationship, arg: T): void
-  add(value: BoidRelationship | Vector2DLike, arg?: T): void {
+  add(value: BoidRelationship | Vector2D, arg?: T): void {
     value instanceof BoidRelationship ? super.sub(value, arg) : super.sub(value)
   }
 }
@@ -162,7 +214,7 @@ class AvoidanceDeceleration extends Deceleration<void> {
     return matched
   }
 
-  resolve(relationship: BoidRelationship): Vector2DLike {
+  resolve(relationship: BoidRelationship): Vector2D {
     return relationship.vector.dividedBy(relationship.distance * 4)
   }
 }
@@ -177,7 +229,7 @@ class FarAcceleration extends Acceleration<number> {
       }
   }
 
-  resolve(relationship: BoidRelationship, i: number): Vector2DLike {
+  resolve(relationship: BoidRelationship, i: number): Vector2D {
     return relationship.vector.dividedBy(relationship.distance * (i + 1) * 8)
   }
 }
@@ -194,34 +246,77 @@ class SpreadAcceleration extends Acceleration<void> {
     return matched
   }
 
-  resolve(relationship: BoidRelationship): Vector2DLike {
+  resolve(relationship: BoidRelationship): Vector2D {
     const boid = relationship.relationalBoid
     return boid.velocity.dividedBy(boid.speed * 32)
   }
 }
 
 class Boid {
+  static #intervalId: NodeJS.Timeout
+  static #numberOfBoids: number
+
   static readonly all = [] as Boid[]
   static readonly circles = [] as Circle[]
 
-  readonly #session: WeakRef<Session>
+  static #update(): void {
+    const canvas = document.getElementById('boids') as HTMLCanvasElement
+    const context = canvas.getContext('2d')
+    context.globalCompositeOperation = 'source-over'
+    context.fillStyle = 'rgba(0, 0, 0, .1)'
+    context.fillRect(0, 0, canvas.width, canvas.height)
+    for (const circle of Boid.circles)
+      circle.draw(context)
+    context.globalCompositeOperation = 'lighter'
+    const alive = new Set<Boid>()
+    for (const boid of Boid.all) {
+      boid.draw(context)
+      boid.update()
+      if (boid.degrees.suffocation < 128)
+        alive.add(boid)
+    }
+    updateUI(alive)
+    Boid.all.splice(0)
+    Boid.all.push(...alive)
+    for (const boid of Boid.all) {
+      boid.normalize()
+      boid.move(canvas.width, canvas.height)
+    }
+  }
+
+  static generate(): void {
+    if (Boid.#intervalId !== undefined)
+      clearInterval(Boid.#intervalId)
+    Boid.all.splice(0)
+    const canvas = document.getElementById('boids') as HTMLCanvasElement
+    const nob = document.getElementById('number-of-boids') as HTMLInputElement
+    const mnb = document.getElementById('max-number-of-boids') as HTMLInputElement
+    const numberOfBoids = clamp(parseInt(nob.value), 1, parseInt(mnb.value), 100)
+    nob.value = numberOfBoids.toString()
+    for (let i = 0; i < numberOfBoids; i++) {
+      const r = Math.floor(Math.random() * 2)
+      const ctor = [Boid, BlueBoid][r]
+      Boid.all.push(new ctor(canvas))
+    }
+    Boid.#intervalId = setInterval(Boid.#update, 25)
+    Boid.#numberOfBoids = numberOfBoids
+  }
+
+  static get numberOfBoids(): number {
+    return Boid.#numberOfBoids
+  }
 
   private readonly backup = new Vector2D(0, 0)
-  private readonly canvas: HTMLCanvasElement
-  private readonly context: CanvasRenderingContext2D
   readonly degrees = {
     suffocation: 0,
   }
   readonly position: Vector2D
   readonly velocity: Vector2D
 
-  constructor(session: Session) {
-    this.#session = new WeakRef(session)
-    this.canvas = session.canvas
-    this.context = session.context
+  constructor(canvas: HTMLCanvasElement) {
     do {
-      const x = 20 + Math.random() * (session.canvas.width - 40)
-      const y = 20 + Math.random() * (session.canvas.height - 40)
+      const x = 20 + Math.random() * (canvas.width - 40)
+      const y = 20 + Math.random() * (canvas.height - 40)
       this.position = new Vector2D(x, y)
     } while (Boid.circles.some(this.position.collisionDetector))
     this.velocity = new Vector2D(1 - Math.random() * 2, 1 - Math.random() * 2)
@@ -252,22 +347,22 @@ class Boid {
     return 255
   }
 
-  draw(): void {
-    this.context.beginPath()
-    this.context.fillStyle = `rgb(${this.color})`
-    this.context.arc(this.position.x, this.position.y, 1, 0, Math.PI * 2, true)
-    this.context.fill()
-    this.context.closePath()
+  draw(context: CanvasRenderingContext2D): void {
+    context.beginPath()
+    context.fillStyle = `rgb(${this.color})`
+    context.arc(this.position.x, this.position.y, 1, 0, Math.PI * 2, true)
+    context.fill()
+    context.closePath()
   }
 
   get isSuffocating(): boolean {
     return 0 < this.degrees.suffocation
   }
 
-  move(): void {
+  move(width: number, height: number): void {
     this.nextPoint.copyTo(this.position)
     this.avoidCircles()
-    this.turnOverByEdgeOfCanvas()
+    this.turnOverByEdgeOfCanvas(width, height)
     this.updateSuffocation()
   }
 
@@ -290,29 +385,25 @@ class Boid {
     return Boid.all.filter((boid: Boid) => boid !== this)
   }
 
-  get session(): Session {
-    return this.#session.deref()
-  }
-
   get speed(): number {
     return this.velocity.length
   }
 
-  private turnOverByEdgeOfCanvas(): void {
+  private turnOverByEdgeOfCanvas(width: number, height: number): void {
     if (this.position.x < 0) {
       this.position.x = 0
       this.velocity.x = Math.abs(this.velocity.x)
     }
-    if (this.canvas.width < this.position.x) {
-      this.position.x = this.canvas.width
+    if (width < this.position.x) {
+      this.position.x = width
       this.velocity.x = -Math.abs(this.velocity.x)
     }
     if (this.position.y < 0) {
       this.position.y = 0
       this.velocity.y = Math.abs(this.velocity.y)
     }
-    if (this.canvas.height < this.position.y) {
-      this.position.y = this.canvas.height
+    if (height < this.position.y) {
+      this.position.y = height
       this.velocity.y = -Math.abs(this.velocity.y)
     }
   }
@@ -346,8 +437,8 @@ class Boid {
 }
 
 class BlueBoid extends Boid {
-  constructor(session: Session) {
-    super(session)
+  constructor(canvas: HTMLCanvasElement) {
+    super(canvas)
   }
 
   get colorForBlue(): number {
@@ -376,7 +467,7 @@ class BoidRelationship {
 class Circle {
   readonly center: Vector2D
 
-  constructor(private readonly context: CanvasRenderingContext2D, x: number, y: number, readonly radius: number = 100, readonly color: string = 'rgba(32, 32, 48, .5)') {
+  constructor(x: number, y: number, readonly radius: number = 100, readonly color: string = 'rgba(32, 32, 48, .5)') {
     this.center = new Vector2D(x, y)
   }
 
@@ -386,14 +477,15 @@ class Circle {
     return Math.acos(v1.dotProduct(v2) / (v1.length * v2.length))
   }
 
-  draw(): void {
-    this.context.beginPath()
-    this.context.fillStyle = this.color
-    this.context.arc(this.center.x, this.center.y, this.radius, 0, Math.PI * 2, true)
-    this.context.fill()
+  draw(context: CanvasRenderingContext2D): void {
+    context.beginPath()
+    context.fillStyle = this.color
+    context.arc(this.center.x, this.center.y, this.radius, 0, Math.PI * 2, true)
+    context.fill()
+    context.closePath()
   }
 
-  doesCollide(pos: Vector2DLike): boolean {
+  doesCollide(pos: Vector2D): boolean {
     const v = this.center.from(pos)
     return v.length <= this.radius
   }
@@ -430,15 +522,7 @@ class IntersectingPoint {
   }
 }
 
-type Session = {
-  canvas: HTMLCanvasElement
-  context: CanvasRenderingContext2D
-  intervalId: NodeJS.Timeout
-  numberOfBoids: number
-  regenerate: (session: Session) => Session
-}
-
-const addOrRemoveCircle = (context: CanvasRenderingContext2D, event: MouseEvent): void => {
+const addOrRemoveCircle = (event: MouseEvent): void => {
   const c = event.target as unknown as HTMLCanvasElement
   const r = c.getBoundingClientRect()
   const v = new Vector2D(event.x, event.y).from(new Vector2D(r.left, r.top))
@@ -451,56 +535,24 @@ const addOrRemoveCircle = (context: CanvasRenderingContext2D, event: MouseEvent)
     Boid.circles.splice(index, 1)
   }
   if (found.length == 0)
-    Boid.circles.push(new Circle(context, p.x, p.y))
+    Boid.circles.push(new Circle(p.x, p.y))
 }
 
 const areAnyoneSuffocating = (boids: Iterable<Boid>): boolean => [...boids].some((boid: Boid) => boid.isSuffocating)
 
 const clamp = (value: number, lower: number, upper: number, alternate: number) => isNaN(value) ? alternate : Math.max(lower, Math.min(value, upper))
 
-const createSession = (): Session => {
-  Boid.all.splice(0)
-  const canvas = document.getElementById('boids') as HTMLCanvasElement
-  const context = canvas.getContext('2d')
-  const update = () => updateBoids(canvas, context)
-  const nob = document.getElementById('number-of-boids') as HTMLInputElement
-  const mnb = document.getElementById('max-number-of-boids') as HTMLInputElement
-  const numberOfBoids = clamp(parseInt(nob.value), 1, parseInt(mnb.value), 100)
-  const session = {
-    canvas,
-    context,
-    numberOfBoids,
-  } as Session
-  nob.value = numberOfBoids.toString()
-  for (let i = 0; i < numberOfBoids; i++) {
-    const r = Math.floor(Math.random() * 2)
-    const ctor = [Boid, BlueBoid][r]
-    Boid.all.push(new ctor(session))
-  }
-  session.intervalId = setInterval(update, 25)
-  session.regenerate = (s: Session) => (clearInterval(s.intervalId), createSession())
-  return session
-}
-
 const domContentLoaded = () => {
-  const applySize = (): void => (canvas.height = canvas.clientHeight, canvas.width = canvas.clientWidth, undefined)
   const canvas = document.getElementById('boids') as HTMLCanvasElement
-  window.addEventListener('resize', applySize)
-  applySize()
-  canvas.onmouseup = event => addOrRemoveCircle(context, event)
-  const context = canvas.getContext('2d')
-  const ctx = { session: createSession() }
-  const regenerate = (): void => (ctx.session = ctx.session.regenerate(ctx.session), undefined)
-  const resetButton = document.getElementById('reset-button')
-  resetButton.addEventListener('click', regenerate)
-}
+  canvas.addEventListener('mouseup', addOrRemoveCircle)
 
-const findSession = () => {
-  for (const boid of Boid.all) {
-    const { session } = boid
-    if (session)
-      return session
-  }
+  const applySize = (): void => (canvas.height = canvas.clientHeight, canvas.width = canvas.clientWidth, undefined)
+  applySize()
+  window.addEventListener('resize', applySize)
+
+  Boid.generate()
+  const resetButton = document.getElementById('reset-button')
+  resetButton.addEventListener('click', Boid.generate)
 }
 
 const summarize = <T>(source: Iterable<T>) => (selector: (value: T) => number) => {
@@ -510,43 +562,24 @@ const summarize = <T>(source: Iterable<T>) => (selector: (value: T) => number) =
   return ctx
 }
 
-const updateBoids = (canvas: HTMLCanvasElement, context: CanvasRenderingContext2D) => {
-  context.globalCompositeOperation = 'source-over'
-  context.fillStyle = 'rgba(0, 0, 0, .1)'
-  context.fillRect(0, 0, canvas.width, canvas.height)
-  Boid.circles.forEach((circle: Circle) => circle.draw())
-  context.globalCompositeOperation = 'lighter'
-  const alive = new Set<Boid>()
-  for (const boid of Boid.all) {
-    boid.draw()
-    boid.update()
-    if (boid.degrees.suffocation < 128)
-      alive.add(boid)
-  }
+const updateUI = (alive: Set<Boid>): void => {
   const living = document.getElementById('number-of-living-boids') as HTMLSpanElement
   const health = document.getElementById('health-of-living-boids') as HTMLSpanElement
-  const session = findSession()
-  if (session) {
-    const num = session.numberOfBoids
-    const statusIndex = Math.floor(alive.size * 3 / num)
+  if (alive.size) {
+    const { numberOfBoids } = Boid
+    const statusIndex = Math.floor(alive.size * 3 / numberOfBoids)
     const status = ['bad', 'not-good', 'good', 'perfect'][statusIndex]
+    const { sum } = summarize(alive)((boid: Boid) => 128 - boid.degrees.suffocation)
     living.setAttribute('face', [status, 'warn'][+(1 < statusIndex && areAnyoneSuffocating(alive))])
     living.setAttribute('status', status)
     living.textContent = alive.size.toString()
-    const { sum } = summarize(alive)((boid: Boid) => 128 - boid.degrees.suffocation)
-    health.textContent = '\u{1F31F}' + Math.floor(sum * 9999 / (num * 128))
+    health.textContent = '\u{1F31F}' + Math.floor(sum * 9999 / (numberOfBoids * 128))
   }
   else {
     living.removeAttribute('face')
     living.removeAttribute('status')
     living.textContent = ''
     health.textContent = ''
-  }
-  Boid.all.splice(0)
-  Boid.all.push(...alive)
-  for (const boid of Boid.all) {
-    boid.normalize()
-    boid.move()
   }
 }
 
