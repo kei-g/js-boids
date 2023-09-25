@@ -27,9 +27,9 @@ export class Circle {
   }
 
   intersectingPoint(boid: Boid): IntersectingPoint {
-    const vector = boid.position.from(this.center)
-    const length = boid.velocity.squareOfLength
-    const a = -boid.velocity.dotProduct(vector)
+    const vector = boid.nextPoint.from(this.center)
+    const length = boid.nextVelocity.squareOfLength
+    const a = -boid.nextVelocity.dotProduct(vector)
     const b = vector.squareOfLength - this.squareOfRadius
     const c = a * a - length * b
     if (0 <= c) {
