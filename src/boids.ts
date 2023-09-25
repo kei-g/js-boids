@@ -12,7 +12,7 @@ const addOrRemoveCircle = (event: MouseEvent): void => {
     const index = Boid.circles.indexOf(circle)
     Boid.circles.splice(index, 1)
   }
-  if (found.length == 0)
+  if (found.length === 0)
     Boid.circles.push(new Circle(p.x, p.y))
 }
 
