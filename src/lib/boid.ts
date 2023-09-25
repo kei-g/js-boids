@@ -7,28 +7,38 @@ export class Boid {
   static readonly all = [] as Boid[]
   static readonly circles = [] as Circle[]
 
-  static #update(): void {
+  static #draw(): CanvasAttribute {
     const canvas = document.getElementById('boids') as HTMLCanvasElement
+    const { height, width } = canvas
     const context = canvas.getContext('2d')
     context.globalCompositeOperation = 'source-over'
     context.fillStyle = 'rgba(0, 0, 0, .1)'
-    context.fillRect(0, 0, canvas.width, canvas.height)
+    context.fillRect(0, 0, width, height)
     for (const circle of Boid.circles)
       circle.draw(context)
     context.globalCompositeOperation = 'lighter'
+    for (const boid of Boid.all)
+      boid.draw(context)
+    return { height, width }
+  }
+
+  static #update(): void {
+    const attr = Boid.#draw()
     const alive = new Set<Boid>()
     for (const boid of Boid.all) {
-      boid.draw(context)
       boid.update()
       if (boid.degrees.suffocation < 128)
         alive.add(boid)
     }
-    updateUI(alive)
+    const { size } = alive
+    const suffocating = areAnyoneSuffocating(alive)
+    const { value } = summarize(alive)((boid: Boid) => 128 - boid.degrees.suffocation)
+    updateUI({ size, suffocating, value })
     Boid.all.splice(0)
     Boid.all.push(...alive)
     for (const boid of Boid.all) {
       boid.normalize()
-      boid.move(canvas.width, canvas.height)
+      boid.move(attr.width, attr.height)
     }
   }
 
@@ -184,29 +194,34 @@ export class Boid {
   }
 }
 
+type Summary = {
+  size: number
+  suffocating: boolean
+  value: number
+}
+
 const areAnyoneSuffocating = (boids: Iterable<Boid>): boolean => [...boids].some((boid: Boid) => boid.isSuffocating)
 
 const clamp = (value: number, lower: number, upper: number, alternate: number) => isNaN(value) ? alternate : Math.max(lower, Math.min(value, upper))
 
 const summarize = <T>(source: Iterable<T>) => (selector: (value: T) => number) => {
-  const ctx = { count: 0, sum: 0 }
+  const ctx = { count: 0, value: 0 }
   for (const value of source)
-    ctx.sum += selector(value)
+    ctx.value += selector(value)
   return ctx
 }
 
-const updateUI = (alive: Set<Boid>): void => {
+const updateUI = (summary: Summary): void => {
   const living = document.getElementById('number-of-living-boids') as HTMLSpanElement
   const health = document.getElementById('health-of-living-boids') as HTMLSpanElement
-  if (alive.size) {
+  if (summary.size) {
     const { numberOfBoids } = Boid
-    const statusIndex = Math.floor(alive.size * 3 / numberOfBoids)
+    const statusIndex = Math.floor(summary.size * 3 / numberOfBoids)
     const status = ['bad', 'not-good', 'good', 'perfect'][statusIndex]
-    const { sum } = summarize(alive)((boid: Boid) => 128 - boid.degrees.suffocation)
-    living.setAttribute('face', [status, 'warn'][+(1 < statusIndex && areAnyoneSuffocating(alive))])
+    living.setAttribute('face', [status, 'warn'][+(1 < statusIndex && summary.suffocating)])
     living.setAttribute('status', status)
-    living.textContent = alive.size.toString()
-    health.textContent = '\u{1F31F}' + Math.floor(sum * 9999 / (numberOfBoids * 128))
+    living.textContent = summary.size.toString()
+    health.textContent = '\u{1F31F}' + Math.floor(summary.value * 9999 / (numberOfBoids * 128))
   }
   else {
     living.removeAttribute('face')
