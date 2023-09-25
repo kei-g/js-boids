@@ -3,6 +3,7 @@ import { Circle, CollisionDetector, Vector2DLike, isVector2DLike } from '..'
 export class Vector2D implements Vector2DLike {
   private $dirty: boolean
   private $length: number
+  private $squareOfLength: number
   private $x: number
   private $y: number
 
@@ -13,6 +14,7 @@ export class Vector2D implements Vector2DLike {
     if (a instanceof Vector2D) {
       this.$dirty = a.$dirty
       this.$length = a.$length
+      this.$squareOfLength = a.$squareOfLength
       this.$x = a.x
       this.$y = a.y
     }
@@ -50,6 +52,7 @@ export class Vector2D implements Vector2DLike {
   copyTo(other: Vector2D): void {
     other.$dirty = this.$dirty
     other.$length = this.$length
+    other.$squareOfLength = this.$squareOfLength
     other.$x = this.$x
     other.$y = this.$y
   }
@@ -59,16 +62,20 @@ export class Vector2D implements Vector2DLike {
   }
 
   divide(divisor: number): void {
-    if (!this.$dirty)
+    if (!this.$dirty) {
       this.$length /= divisor
+      this.$squareOfLength /= divisor * divisor
+    }
     this.$x /= divisor
     this.$y /= divisor
   }
 
   dividedBy(divisor: number): Vector2D {
     const v = this.clone
-    if (!v.$dirty)
+    if (!v.$dirty) {
       v.$length /= divisor
+      v.$squareOfLength /= divisor * divisor
+    }
     v.$x /= divisor
     v.$y /= divisor
     return v
@@ -86,12 +93,18 @@ export class Vector2D implements Vector2DLike {
     if (this.$dirty) {
       this.$dirty = false
       this.$length = Math.hypot(this.$x, this.$y)
+      this.$squareOfLength = this.dotProduct(this)
     }
     return this.$length
   }
 
   get squareOfLength(): number {
-    return this.dotProduct(this)
+    if (this.$dirty) {
+      this.$dirty = false
+      this.$length = Math.hypot(this.$x, this.$y)
+      this.$squareOfLength = this.dotProduct(this)
+    }
+    return this.$squareOfLength
   }
 
   get retrorse(): Vector2D {
@@ -118,16 +131,20 @@ export class Vector2D implements Vector2DLike {
   }
 
   scale(scale: number): void {
-    if (!this.$dirty)
+    if (!this.$dirty) {
       this.$length *= scale
+      this.$squareOfLength *= scale * scale
+    }
     this.$x *= scale
     this.$y *= scale
   }
 
   scaledBy(scale: number): Vector2D {
     const v = this.clone
-    if (!this.$dirty)
+    if (!this.$dirty) {
       v.$length *= scale
+      v.$squareOfLength *= scale * scale
+    }
     v.$x *= scale
     v.$y *= scale
     return v
