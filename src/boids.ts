@@ -3,10 +3,10 @@ import { Boid, Circle, Vector2D } from './lib'
 const addOrRemoveCircle = (event: MouseEvent): void => {
   const c = event.target as unknown as HTMLCanvasElement
   const r = c.getBoundingClientRect()
-  const v = new Vector2D(event.x, event.y).from(new Vector2D(r.left, r.top))
-  const { x } = v.scaledBy(c.width / r.width)
-  const { y } = v.scaledBy(c.height / r.height)
-  const p = new Vector2D(x, y)
+  const p = new Vector2D(
+    (event.x - r.left) * c.width / r.width,
+    (event.y - r.top) * c.height / r.height
+  )
   const found = Boid.circles.filter(p.collisionDetector)
   for (const circle of found) {
     const index = Boid.circles.indexOf(circle)
