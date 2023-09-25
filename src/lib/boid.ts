@@ -1,6 +1,6 @@
-import { AvoidanceDeceleration, BlueBoid, BoidRelationship, CanvasAttribute, Circle, FarAcceleration, SpreadAcceleration, Vector2D } from '..'
+import { AvoidanceDeceleration, BlueBoid, BoidLike, BoidRelationship, CanvasAttribute, Circle, FarAcceleration, SpreadAcceleration, Vector2D, Vector2DLike, isCanvasAttribute } from '..'
 
-export class Boid {
+export class Boid implements BoidLike<Vector2D> {
   static #intervalId: NodeJS.Timeout
   static #numberOfBoids: number
 
@@ -64,20 +64,32 @@ export class Boid {
     return Boid.#numberOfBoids
   }
 
-  private readonly backup = new Vector2D(0, 0)
+  private readonly backup
   readonly degrees = {
     suffocation: 0,
   }
   readonly position: Vector2D
   readonly velocity: Vector2D
 
-  constructor(attr: Readonly<CanvasAttribute>) {
-    do {
-      const x = 20 + Math.random() * (attr.width - 40)
-      const y = 20 + Math.random() * (attr.height - 40)
-      this.position = new Vector2D(x, y)
-    } while (Boid.circles.some(this.position.collisionDetector))
-    this.velocity = new Vector2D(1 - Math.random() * 2, 1 - Math.random() * 2)
+  constructor(boid: Readonly<BoidLike<Vector2DLike>>)
+  constructor(attr: Readonly<CanvasAttribute>)
+  constructor(value: Readonly<BoidLike<Vector2DLike>> | Readonly<CanvasAttribute>) {
+    if (isCanvasAttribute(value)) {
+      this.backup = new Vector2D(undefined, undefined)
+      do {
+        const x = 20 + Math.random() * (value.width - 40)
+        const y = 20 + Math.random() * (value.height - 40)
+        this.position = new Vector2D(x, y)
+      } while (Boid.circles.some(this.position.collisionDetector))
+      this.velocity = new Vector2D(1 - Math.random() * 2, 1 - Math.random() * 2)
+    }
+    else {
+      if ('backup' in value)
+        this.backup = new Vector2D(value.backup as unknown as Vector2DLike)
+      this.degrees.suffocation = value.degrees.suffocation
+      this.position = new Vector2D(value.position)
+      this.velocity = new Vector2D(value.velocity)
+    }
   }
 
   private avoidCircles(): void {
@@ -122,6 +134,10 @@ export class Boid {
     this.avoidCircles()
     this.turnOverByEdgeOfCanvas(width, height)
     this.updateSuffocation()
+  }
+
+  get name(): string {
+    return this.constructor.name
   }
 
   get nextPoint(): Vector2D {

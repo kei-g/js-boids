@@ -1,9 +1,11 @@
 import { Boid } from './boid'
-import { CanvasAttribute } from '..'
+import { BoidLike, CanvasAttribute, Vector2DLike, isBoidLike } from '..'
 
 export class BlueBoid extends Boid {
-  constructor(attr: Readonly<CanvasAttribute>) {
-    super(attr)
+  constructor(boid: Readonly<BoidLike<Vector2DLike>>)
+  constructor(attr: Readonly<CanvasAttribute>)
+  constructor(value: Readonly<BoidLike<Vector2DLike>> | Readonly<CanvasAttribute>) {
+    isBoidLike(value) ? super(value) : super(value)
   }
 
   get colorForBlue(): number {
