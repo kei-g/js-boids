@@ -1,8 +1,9 @@
 import { Boid } from './boid'
+import { CanvasAttribute } from '..'
 
 export class BlueBoid extends Boid {
-  constructor(canvas: HTMLCanvasElement) {
-    super(canvas)
+  constructor(attr: Readonly<CanvasAttribute>) {
+    super(attr)
   }
 
   get colorForBlue(): number {

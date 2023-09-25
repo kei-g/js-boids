@@ -1,4 +1,4 @@
-import { AvoidanceDeceleration, BlueBoid, BoidRelationship, Circle, FarAcceleration, SpreadAcceleration, Vector2D } from '..'
+import { AvoidanceDeceleration, BlueBoid, BoidRelationship, CanvasAttribute, Circle, FarAcceleration, SpreadAcceleration, Vector2D } from '..'
 
 export class Boid {
   static #intervalId: NodeJS.Timeout
@@ -61,10 +61,10 @@ export class Boid {
   readonly position: Vector2D
   readonly velocity: Vector2D
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(attr: Readonly<CanvasAttribute>) {
     do {
-      const x = 20 + Math.random() * (canvas.width - 40)
-      const y = 20 + Math.random() * (canvas.height - 40)
+      const x = 20 + Math.random() * (attr.width - 40)
+      const y = 20 + Math.random() * (attr.height - 40)
       this.position = new Vector2D(x, y)
     } while (Boid.circles.some(this.position.collisionDetector))
     this.velocity = new Vector2D(1 - Math.random() * 2, 1 - Math.random() * 2)
