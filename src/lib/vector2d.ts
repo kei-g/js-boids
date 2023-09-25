@@ -1,24 +1,31 @@
-import { Circle, CollisionDetector } from '..'
+import { Circle, CollisionDetector, Vector2DLike, isVector2DLike } from '..'
 
-export class Vector2D {
+export class Vector2D implements Vector2DLike {
   private $dirty: boolean
   private $length: number
   private $x: number
   private $y: number
 
+  constructor(v: Readonly<Vector2DLike>)
   constructor(v: Vector2D)
   constructor(x: number, y: number)
-  constructor(a: Vector2D | number, b?: number) {
-    if (typeof (a) === 'number') {
-      this.$dirty = true
-      this.$x = a
-      this.$y = b
-    }
-    else {
+  constructor(a: Readonly<Vector2DLike> | Vector2D | number, b?: number) {
+    if (a instanceof Vector2D) {
       this.$dirty = a.$dirty
       this.$length = a.$length
       this.$x = a.x
       this.$y = a.y
+    }
+    else {
+      this.$dirty = true
+      if (isVector2DLike(a)) {
+        this.$x = a.x
+        this.$y = a.y
+      }
+      else {
+        this.$x = a
+        this.$y = b
+      }
     }
   }
 
