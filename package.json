@@ -5,7 +5,7 @@
   },
   "description": "Bird-oid model simulation",
   "devDependencies": {
-    "@types/node": "^22.1.0",
+    "@types/node": "^22.5.2",
     "@typescript-eslint/eslint-plugin": "^8.0.1",
     "@typescript-eslint/parser": "^8.0.1",
     "esbuild": "^0.23.0",
