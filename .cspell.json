@@ -1,12 +1,12 @@
 {
   "allowCompoundWords": true,
+  "caseSensitive": false,
   "version": "0.2",
   "words": [
     "bifmsq",
     "boid",
     "boids",
     "esbuild",
-    "linebreak",
     "noarchive",
     "noreply",
     "svvh"
