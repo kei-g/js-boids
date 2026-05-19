@@ -6,7 +6,7 @@
   "description": "Bird-oid model simulation",
   "devDependencies": {
     "@types/eslint": "^9.6.1",
-    "@types/node": "^25.9.0",
+    "@types/node": "^25.9.1",
     "esbuild": "^0.28.0",
     "eslint": "^10.4.0",
     "globals": "^17.6.0",
