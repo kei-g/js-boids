@@ -18,6 +18,9 @@
   "homepage": "https://kei-g.github.io/js-boids/",
   "license": " BSD-3-Clause",
   "name": "js-boids",
+  "overrides": {
+    "brace-expansion": "^5.0.9"
+  },
   "private": true,
   "repository": "github:kei-g/js-boids",
   "scripts": {
