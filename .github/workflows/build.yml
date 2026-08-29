@@ -2,11 +2,6 @@ jobs:
   build:
     name: Build on Node.js ${{ matrix.node }}
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        node:
-          - 18
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -38,6 +33,11 @@ jobs:
           git add .
           git commit --author=. -m ':robot: Build by GitHub Actions'
           git push
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - 26
 name: Build
 on:
   push:
