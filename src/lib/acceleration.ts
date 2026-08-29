@@ -1,4 +1,4 @@
-import { Vector2D } from './vector2d'
+import { Vector2D } from "./vector2d.ts"
 import { BoidRelationship } from '..'
 
 export abstract class Acceleration<T> extends Vector2D {

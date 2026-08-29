@@ -1,4 +1,4 @@
-import { Boid } from '..'
+import type { Boid } from '..'
 
 export class IntersectingPoint {
   private readonly rotation: number

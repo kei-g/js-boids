@@ -1,5 +1,5 @@
-import { Boid } from './boid'
-import { BoidLike, CanvasAttribute, Vector2DLike, isBoidLike } from '..'
+import { Boid } from "./boid.ts"
+import { type BoidLike, type CanvasAttribute, type Vector2DLike, isBoidLike } from '..'
 
 export class BlueBoid extends Boid {
   constructor(boid: Readonly<BoidLike<Vector2DLike>>)

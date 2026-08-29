@@ -1,4 +1,4 @@
-import { Vector2DLike, isVector2DLike } from '..'
+import { type Vector2DLike, isVector2DLike } from '..'
 
 export type BoidLike<T extends Vector2DLike> = {
   degrees: {

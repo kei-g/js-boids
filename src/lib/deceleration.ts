@@ -1,4 +1,4 @@
-import { Acceleration, BoidRelationship, Vector2D } from '..'
+import { Acceleration, BoidRelationship, type Vector2D } from '..'
 
 export abstract class Deceleration<T> extends Acceleration<T> {
   add(vector: Vector2D): void

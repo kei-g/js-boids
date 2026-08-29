@@ -1,4 +1,4 @@
-import { AvoidanceDeceleration, BlueBoid, BoidLike, BoidRelationship, CanvasAttribute, Circle, FarAcceleration, SpreadAcceleration, Vector2D, Vector2DLike, isCanvasAttribute } from '..'
+import { AvoidanceDeceleration, BlueBoid, type BoidLike, BoidRelationship, type CanvasAttribute, type Circle, FarAcceleration, SpreadAcceleration, Vector2D, type Vector2DLike, isCanvasAttribute } from '..'
 
 export class Boid implements BoidLike<Vector2D> {
   static #intervalId: NodeJS.Timeout
@@ -126,7 +126,7 @@ export class Boid implements BoidLike<Vector2D> {
   }
 
   get isSuffocating(): boolean {
-    return 0 < this.degrees.suffocation
+    return this.degrees.suffocation > 0 
   }
 
   move(width: number, height: number): void {
@@ -218,7 +218,7 @@ type Summary = {
 
 const areAnyoneSuffocating = (boids: Iterable<Boid>): boolean => [...boids].some((boid: Boid) => boid.isSuffocating)
 
-const clamp = (value: number, lower: number, upper: number, alternate: number) => isNaN(value) ? alternate : Math.max(lower, Math.min(value, upper))
+const clamp = (value: number, lower: number, upper: number, alternate: number) => Number.isNaN(value) ? alternate : Math.max(lower, Math.min(value, upper))
 
 const summarize = <T>(source: Iterable<T>) => (selector: (value: T) => number) => {
   const ctx = { count: 0, value: 0 }
@@ -234,10 +234,10 @@ const updateUI = (summary: Summary): void => {
     const { numberOfBoids } = Boid
     const statusIndex = Math.floor(summary.size * 3 / numberOfBoids)
     const status = ['bad', 'not-good', 'good', 'perfect'][statusIndex]
-    living.setAttribute('face', [status, 'warn'][+(1 < statusIndex && summary.suffocating)])
+    living.setAttribute('face', [status, 'warn'][+(statusIndex > 1 && summary.suffocating)])
     living.setAttribute('status', status)
     living.textContent = summary.size.toString()
-    health.textContent = '\u{1F31F}' + Math.floor(summary.value * 9999 / (numberOfBoids * 128))
+    health.textContent = `\u{1F31F}${Math.floor(summary.value * 9999 / (numberOfBoids * 128))}`
   }
   else {
     living.removeAttribute('face')

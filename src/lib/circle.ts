@@ -1,4 +1,4 @@
-import { Boid, IntersectingPoint, Vector2D } from '..'
+import { type Boid, IntersectingPoint, Vector2D } from '..'
 
 export class Circle {
   readonly center: Vector2D
@@ -32,7 +32,7 @@ export class Circle {
     const a = -boid.nextVelocity.dotProduct(vector)
     const b = vector.squareOfLength - this.squareOfRadius
     const c = a * a - length * b
-    if (0 <= c) {
+    if (c >= 0) {
       const d = Math.sqrt(c)
       const t = [(a + d) / length, (a - d) / length]
       if (t.some(within(0, 1)))

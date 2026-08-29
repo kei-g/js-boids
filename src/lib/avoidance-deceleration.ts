@@ -1,5 +1,5 @@
-import { Deceleration } from './deceleration'
-import { BoidRelationship, Vector2D } from '..'
+import { Deceleration } from "./deceleration.ts"
+import type { BoidRelationship, Vector2D } from '..'
 
 export class AvoidanceDeceleration extends Deceleration<void> {
   match(relationship: BoidRelationship): boolean {

@@ -1,0 +1,72 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.11/schema.json",
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!*.d.ts",
+      "!*.js",
+      "!.vscode",
+      "!coverage",
+      "!lib",
+      "!node_modules"
+    ],
+    "ignoreUnknown": true
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineEnding": "lf"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "complexity": {
+        "noCommaOperator": "off",
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": {
+            "maxAllowedComplexity": 6
+          }
+        },
+        "noUselessStringConcat": "error",
+        "useSimplifiedLogicExpression": "error"
+      },
+      "correctness": {
+        "noUnreachableSuper": "off",
+        "noUnusedImports": "error",
+        "noUnusedPrivateClassMembers": "off",
+        "noUnusedVariables": "error",
+        "useImportExtensions": "error",
+        "useParseIntRadix": "off"
+      },
+      "nursery": {
+        "useSortedClasses": "error"
+      },
+      "preset": "recommended",
+      "style": {
+        "noNonNullAssertion": "off",
+        "noYodaExpression": "error",
+        "useCollapsedElseIf": "error",
+        "useShorthandFunctionType": "error"
+      },
+      "suspicious": {
+        "noAssignInExpressions": "off",
+        "noControlCharactersInRegex": "off",
+        "noEvolvingTypes": "error"
+      }
+    }
+  },
+  "vcs": {
+    "clientKind": "git",
+    "enabled": true,
+    "useIgnoreFile": true
+  }
+}

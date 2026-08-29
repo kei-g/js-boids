@@ -1,4 +1,4 @@
-import { Acceleration, BoidRelationship, Vector2D } from '..'
+import { Acceleration, type BoidRelationship, type Vector2D } from '..'
 
 export class SpreadAcceleration extends Acceleration<void> {
   constructor(private readonly spread: number) {

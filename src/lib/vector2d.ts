@@ -1,4 +1,4 @@
-import { Circle, CollisionDetector, Vector2DLike, isVector2DLike } from '..'
+import { type Circle, type CollisionDetector, type Vector2DLike, isVector2DLike } from '..'
 
 export class Vector2D implements Vector2DLike {
   private $dirty: boolean

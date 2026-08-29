@@ -1,4 +1,4 @@
-import { Boid, Circle, Vector2D } from './lib'
+import { Boid, Circle, Vector2D } from "./lib/index.ts"
 
 const addOrRemoveCircle = (event: MouseEvent): void => {
   const c = event.target as unknown as HTMLCanvasElement

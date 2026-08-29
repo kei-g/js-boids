@@ -1,4 +1,4 @@
-import { Boid, Vector2D } from '..'
+import type { Boid, Vector2D } from '..'
 
 export class BoidRelationship {
   readonly distance: number
