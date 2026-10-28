@@ -5,7 +5,7 @@
   },
   "description": "Bird-oid model simulation",
   "devDependencies": {
-    "@biomejs/biome": "^2.6.2",
+    "@biomejs/biome": "^2.6.3",
     "@types/node": "^26.6.5",
     "esbuild": "^0.28.2",
     "globals": "^17.13.0",
